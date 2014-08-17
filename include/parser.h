@@ -26,11 +26,9 @@
 
 typedef struct task_t
 {
-	int linenumber; /** The line number in the file. */
 	char* description; /**< description of what the task is about. */
-	char priority; /**< priority of the task. */
-	bool complete; /**< completion status */
-	date* datestamp; /**< completion date */ 
+	int strttm;
+	int endtm;
 }Task;
 
 /**
