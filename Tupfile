@@ -1,0 +1,18 @@
+##############################
+# @file Tupfile for yadp
+##############################
+include_rules
+
+ifeq (@(MODE),TUPDEBUG)
+
+: |> !TUPDBG |>
+
+else
+
+#compile source code
+: foreach $(SRC) |> !CC |> $(OBJDIR)/%B.o
+
+#link to build binary
+: $(OBJ) |> !LNK |> $(OUTPUT)
+
+endif

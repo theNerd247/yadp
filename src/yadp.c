@@ -22,13 +22,22 @@
  *
  * @author theNerd247 (noah.harvey247@gmail.com)
  * @copyright GNU Public License 2
+ *
  */
 
 #include <stdlib.h>
 
+#include "parser.h"
+
 int main(int argc, char const *argv[])
 {
   //parse args
+  Task t;
+	t.description = "(A) math hw START:0800 END:0300";
+
+	gettms(&t);
+
+	printf("start: %i, end: %i\n", t.strttm,t.endtm);
   //parse tasks from given todo file
   //generate day planner
   //save day planner

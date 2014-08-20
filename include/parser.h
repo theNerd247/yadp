@@ -24,6 +24,8 @@
  * @copyright GNU Public License 2
  */
 
+#include <stdio.h>
+
 typedef struct task_t
 {
 	char* description; /**< description of what the task is about. */
@@ -48,9 +50,9 @@ Task* gettasklist(FILE* file);
  * Parse the given string for task information and store it in the given task
  *
  * @param task - the given Task to store the found info in.
- * @param str - a string to parse
  *
  * @return int - the given task object with info stored; NULL if error occured
  * 
+ * @todo add date extraction (yyyy-mm-dd)
  */
-Task* task_parse(Task* task, char* str);
+Task* gettms(Task* task);

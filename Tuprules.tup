@@ -1,0 +1,56 @@
+##############################
+# @file Tuprules for yadp tup build 
+##############################
+#
+## PROJECT ##############################
+PROJECT=yadp
+VERSION=0.1
+## END PROJECT ############################
+#
+## DIRS ##############################
+PREFIX=$(TUP_CWD)
+BINDIR=$(PREFIX)/bin
+IDIR=$(PREFIX)/include
+SRCDIR=$(PREFIX)/src
+OBJDIR=$(PREFIX)/obj
+LIBDIR=$(PREFIX)/lib
+CLEAN=$(LIBDIR) 
+## END DIRS ############################
+#
+## FILES ##############################
+SRC=$(SRCDIR)/*.c
+OBJ=$(OBJDIR)/*.o
+OUTPUT=$(BINDIR)/$(PROJECT)
+## END FILES ############################
+#
+## LIBS ##############################
+# lib | desc.
+# ----|------
+# m   | std. c math library (math.h)
+LLIBS=-lm -lstr
+## END LIBS ############################
+#
+## FLAGS ##############################
+CFLAGS=-I$(IDIR) 
+ifeq (@(MODE),DEBUG)
+CFLAGS+=-Wall -g
+endif
+
+ifeq (@(BUILD),LIBBUILD)
+SOFLAGS=-shared
+endif
+LFLAGS=$(LLIBS) $(SOFLAGS)
+## END FLAGS ############################
+#
+## COMPILE CMDS ##############################
+GCC=gcc
+## END COMPILE CMDS ############################
+#
+## MACROS ##############################
+# compile 
+!CC = |> ^ CC %f^ $(GCC) -o %o $(CFLAGS) -c %f  |> 
+# link
+!LNK = |> ^ LINKING %f^ $(GCC) -o %o $(LFLAGS) %f |> 
+# tup debug macro
+!TUPDBG = |> echo $(LFLAGS) |>
+## END MACROS ############################
