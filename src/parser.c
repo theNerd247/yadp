@@ -36,56 +36,52 @@
 #include "parser.h"
 #include "dbg.h"
 
-///helper function for task_parse
-/** 
- * @brief fetches the start time 
- * 
- * @param str - string to parse
- *
- * @return int - start time found (or 0 if no valid time found)
- *
- */
-int getstarttm(char* str)
-{
-	char* strt = NULL;
-
-	//sanity check
-	if(!(strt = strstr(str,"START:"))) return 0;
-
-	//offset the strt pointer to point at start of numerical time string
-	strt += 6;
-
-	return atoi(strt);
-}
+#define PATTERN "(([0-9][0-9])/([0-9][0-9])/([0-9][0-9]))? ?(([0-9][0-9]):([0-9][0-9]))?[.]*"
 
 ///helper function for task_parse
-/** 
- * @brief fetches the end time 
- * 
- * @param strt - the start time to reference from
- * @param str - string to parse
- *
- * @return int - end time found (or 0 if no valid time found)
- *
- */
-int getendtm(char* str, int strt)
+int gettm(char* str, const char* ind, regex_t* regt)
 {
-	size_t tm = 0;
-	char* end = NULL;
+	size_t nmatches;
+	regmatch_t* matches;
+ 	size_t i;
+	char* temp;
 
-	//sanity check
-	if(!(end = strstr(str,"END:"))) return 0;
+	//find the offset of the given indicator
+	if(!(str = strstr(str,ind))) return -1;
+	str += strlen(ind);
 
-	//offset the strt pointer to point at start of numerical time string
-	end += 4;
+	//set up matching variables for regex
+	nmatches = regt->re_nsub;
+	matches = calloc(sizeof(regmatch_t), nmatches);
 
-	tm = atoi(end);
+	//run regex
+	if(regexec(regt,str,nmatches,matches,REG_NOTBOL & REG_NOTEOL) == REG_NOMATCH)
+		return -1;
 
-	//shift the end time based on the start reference time
-	if(tm <= strt)
-		tm += 1200;
+	//grab the start and end times
+ 	for (i = 1; i < nmatches; i++)
+ 	{
+		if(matches[i].rm_so == -1) 
+			continue;
 
-	return tm;
+		strncpy(temp,str,matches[i].rm_eo-matches[i].rm_so+1);
+
+		printf("%i: %s\n",i,temp);
+
+/*
+ * 		switch(i)
+ * 		{
+ * 			case 1: 
+ * 				
+ * 				break;
+ * 			case 2: 
+ * 				
+ * 				break;
+ * 		}
+ * 		 */
+ 	}
+
+	return 0;
 }
 
 //imported from 
@@ -93,14 +89,16 @@ Task* gettms(Task* task)
 {
 	//define variables
 	char* str = task->description;
+	regex_t regt;
 
 	//sanity checks
 	if(!task || !str) goto error;	
-	if(*str == '\0') goto error;
+	if(*str == 0) goto error;
 
-	//grab the start and end times
-	task->strttm = getstarttm(str);
-	task->endtm = getendtm(str,task->strttm);
+	//regex setup
+	check(regcomp(&regt,PATTERN,REG_EXTENDED) == 0, "Failed to compile regex");
+
+	int a = gettm(str,"START:",&regt);	
 
 	return task;
 

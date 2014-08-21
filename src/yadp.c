@@ -33,7 +33,7 @@ int main(int argc, char const *argv[])
 {
   //parse args
   Task t;
-	t.description = "(A) math hw START:0800 END:0300";
+	t.description = "(A) math hw START:08:00 END:03:00";
 
 	gettms(&t);
 
