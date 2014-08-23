@@ -26,11 +26,24 @@
 
 #include <stdio.h>
 
+typedef union
+{
+	unsigned long int date:40;
+	struct
+	{
+		unsigned char year:8;
+		unsigned char month:8;
+		unsigned char day:8;
+		unsigned char hour:8;
+		unsigned int min:8;
+	};
+} date_t;
+
 typedef struct task_t
 {
 	char* description; /**< description of what the task is about. */
-	int strttm;
-	int endtm;
+	date_t starttm;
+	date_t endtm;
 }Task;
 
 /**

@@ -29,15 +29,23 @@
 
 #include "parser.h"
 
+#define pdate(tm) printf("date(%u): %u/%u/%u/ %u:%u\n",tm.date,tm.month,tm.day,tm.year,tm.hour,tm.min);
+
 int main(int argc, char const *argv[])
 {
   //parse args
-  Task t;
-	t.description = "(A) math hw START:08:00 END:03:00";
+  Task t,d;
+	t.description = "(A) math hw START:08/22/14 08:15 END:08/22/14 03:30";
+	d.description = "(A) sci hw START:08:15 END:03:30";
 
 	gettms(&t);
+	gettms(&d);
 
-	printf("start: %i, end: %i\n", t.strttm,t.endtm);
+	pdate(t.starttm);
+	pdate(t.endtm);
+
+	pdate(d.starttm);
+	pdate(d.endtm);
   //parse tasks from given todo file
   //generate day planner
   //save day planner
