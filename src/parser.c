@@ -37,23 +37,27 @@
 #include "dbg.h"
 
 #define PATTERN "(([0-9][0-9])/([0-9][0-9])/([0-9][0-9]))? ?(([0-9][0-9]):([0-9][0-9]))?[.]*"
+const char** weeks = ["Mon","Tue","Wed","Thur","Fri","Sat","Sun"];
 
 ///helper function for task_parse
 date_t gettm(char* str)
 {
  	size_t i;
 	size_t nmatches;
-	regex_t regt;
-	regmatch_t* matches;
-	char* temp;
+	regex_t regt = NULL;
+	regmatch_t* matches = NULL;
+	char* temp = NULL;
 	date_t date;
+
+	check(str,"Invalid time string: %s",str);
 
 	date.date = 0; 
 
 	temp = (char*)malloc(sizeof(char)*strlen(str));
+	check_mem(temp);
 
 	//regex setup
-	check(regcomp(&regt,PATTERN,REG_EXTENDED) == 0, "Failed to compile regex");
+	check(regcomp(&regt,PATTERN,REG_EXTENDED) == 0, "Failed to regex time string: %s",str);
 
 	//set up variables for regex matching
 	nmatches = regt.re_nsub+1;
@@ -108,6 +112,34 @@ date_t gettm(char* str)
 
 }
 
+///helper function for gettms
+/** 
+ * @brief parses for recurring times
+ *
+ * Parses the "... RECUR: ..." part of the task for a recurring time and
+ * computes the date at which it will occur next (or today). 
+ *
+ * @param str - the string to parse
+ * @param time - the structure to store the parsed time in
+ * 
+ * @return Task* - given Task* with stored recurring weekday, or NULL if error occurs
+ */
+Task* getrecurtm(char* str, Task* time)
+{
+	//compare characters to get weekday
+	for (i = 0; i < 7; i++)
+	{
+		if(!strncmp(str,weeks[i]))
+		{
+			time->recur = i;
+			return time;
+		}
+	}
+
+	error:
+		return NULL;
+}
+
 //imported from 
 Task* gettms(Task* task)
 {
@@ -120,21 +152,24 @@ Task* gettms(Task* task)
 	if(!task || !str) goto error;	
 	if(*str == 0) goto error;
 
+	//get reoccurence time if needed
+	if(temp = strstr(str,"RECUR:")+6)
+		check(getrecurtm(temp,task),"Invalid Recurring Day");
 
 	//offset the string to the start date
 	if(!(str = strstr(str,"START:"))) return NULL;
 	str += 6;
 
 	//break the string at the end date
-	if(!(endstr = strstr(str,"END:"))) return NULL;
-	endstr += 4;
+	if(!(endstr = strstr(str,"END:")+4)) return NULL;
 
 	//create regex string for START:
 	temp = (char*)malloc(sizeof(char)*strlen(str));	
+	check_mem(temp);
 	strncpy(temp,str,strlen(str)-strlen(endstr));
 
 	//parse the START: and END: strings for dates and times
-	task->starttm = gettm(temp);	
+	task->starttm = gettm(temp);
 	task->endtm = gettm(endstr);
 
 	//shift the end time to military time 

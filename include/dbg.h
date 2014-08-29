@@ -51,13 +51,13 @@
 // ...failure! 
 #define log_failure(M, ...) { fprintf(stderr,"failure: \n"); log_err(M, ##__VA_ARGS__); }
 
-#endif 
+#endif //end ifdef NLOG
 
 // Check if the expression A is true. If not, say something and go to the error label.
 #define check(A, M, ...) if(!(A)) { log_err(M, ##__VA_ARGS__); errno=0; goto error; }
 
 //added by Noah Harvey
-// Shorthand for check
+// Shorthand for checking a specific value
 #define check_expr(A, V, M, ...) check(((A) == (V)),M, ##__VA_ARGS__)
 
 // Place the sentinel somewhere that the program should not go.

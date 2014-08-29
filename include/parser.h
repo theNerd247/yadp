@@ -42,8 +42,12 @@ typedef union
 typedef struct task_t
 {
 	char* description; /**< description of what the task is about. */
-	date_t starttm;
-	date_t endtm;
+	date_t starttm; /**< start time/date of event */
+	date_t endtm; /**< end time/date of event */
+	struct
+	{
+		unsigned char recur:3; /**< recurring week day of event */
+	};
 }Task;
 
 /**
