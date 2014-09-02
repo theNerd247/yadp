@@ -36,15 +36,20 @@
 #include "parser.h"
 #include "dbg.h"
 
-#define PATTERN "(([0-9][0-9])/([0-9][0-9])/([0-9][0-9]))? ?(([0-9][0-9]):([0-9][0-9]))?[.]*"
-const char** weeks = ["Mon","Tue","Wed","Thur","Fri","Sat","Sun"];
+#ifndef NDEBUG
+#define pdate(tm) printf("date(%u): %u/%u/%u %u:%u\n",tm.date,tm.month,tm.day,tm.year,tm.hour,tm.min);
+#endif
+
+#define PATTERN "(([0-9][0-9])[/|-]([0-9][0-9])[/|-]([0-9][0-9])) ?(([0-9][0-9]):([0-9][0-9]))[.]*"
+const char* weeks[7] = {"Mon","Tue","Wed","Thur","Fri","Sat","Sun"};
+
 
 ///helper function for task_parse
 date_t gettm(char* str)
 {
  	size_t i;
 	size_t nmatches;
-	regex_t regt = NULL;
+	regex_t regt;
 	regmatch_t* matches = NULL;
 	char* temp = NULL;
 	date_t date;
@@ -57,15 +62,14 @@ date_t gettm(char* str)
 	check_mem(temp);
 
 	//regex setup
-	check(regcomp(&regt,PATTERN,REG_EXTENDED) == 0, "Failed to regex time string: %s",str);
+	check(regcomp(&regt,PATTERN,REG_EXTENDED) == 0, "Failed to compile regex string: %s",PATTERN);
 
 	//set up variables for regex matching
 	nmatches = regt.re_nsub+1;
 	matches = calloc(sizeof(regmatch_t), nmatches);
 
 	//run regex for start
-	if(regexec(&regt,str,nmatches,matches,REG_NOTBOL & REG_NOTEOL) == REG_NOMATCH)
-		return date;
+	check(regexec(&regt,str,nmatches,matches,REG_NOTBOL & REG_NOTEOL) == 0, "Invalid START/END time: %s",str);
 
 	//grab the start and end times
 	int b;//temp variable for string to time conversion
@@ -126,18 +130,27 @@ date_t gettm(char* str)
  */
 Task* getrecurtm(char* str, Task* time)
 {
+	size_t i;
+	//remove beginning white space
+	while(*str == ' ' || *str == '\t')
+	{
+		str++;
+	}
+
 	//compare characters to get weekday
 	for (i = 0; i < 7; i++)
 	{
-		if(!strncmp(str,weeks[i]))
+		if(!strncmp(str,weeks[i],3))
 		{
 			time->recur = i;
+			#ifndef NDEBUG
+			debug("Recurring Time found: %s",weeks[i]);
+			#endif 
 			return time;
 		}
 	}
 
-	error:
-		return NULL;
+	return NULL;
 }
 
 //imported from 
@@ -153,20 +166,26 @@ Task* gettms(Task* task)
 	if(*str == 0) goto error;
 
 	//get reoccurence time if needed
-	if(temp = strstr(str,"RECUR:")+6)
+	if((temp = strstr(str,"RECUR:")))
+	{
+		temp += 6;
 		check(getrecurtm(temp,task),"Invalid Recurring Day");
+	}
 
 	//offset the string to the start date
 	if(!(str = strstr(str,"START:"))) return NULL;
 	str += 6;
 
 	//break the string at the end date
-	if(!(endstr = strstr(str,"END:")+4)) return NULL;
+	if(!(endstr = strstr(str,"END:"))) return NULL;
+	endstr += 4;
 
 	//create regex string for START:
 	temp = (char*)malloc(sizeof(char)*strlen(str));	
 	check_mem(temp);
+
 	strncpy(temp,str,strlen(str)-strlen(endstr));
+	*(temp+(endstr-str-4)) = '\0';
 
 	//parse the START: and END: strings for dates and times
 	task->starttm = gettm(temp);
@@ -175,6 +194,11 @@ Task* gettms(Task* task)
 	//shift the end time to military time 
 	if(task->endtm.hour < task->starttm.hour)
 		task->endtm.hour += 12;
+	
+	#ifndef NDEBUG
+	pdate(task->starttm); 
+	pdate(task->endtm); 
+	#endif
 
 	return task;
 

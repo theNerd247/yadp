@@ -31,7 +31,7 @@ LLIBS=-lm -lstr
 ## END LIBS ############################
 #
 ## FLAGS ##############################
-CFLAGS=-I$(IDIR) 
+CFLAGS=-I$(IDIR) -Wformat=2
 ifeq (@(MODE),DEBUG)
 CFLAGS+=-Wall -g
 endif

@@ -25,29 +25,66 @@
  *
  */
 
+#define UNITTST
+
 #include <stdlib.h>
 
 #include "parser.h"
+#include "sput.h"
 
 #define pdate(tm) printf("date(%u): %u/%u/%u/ %u:%u\n",tm.date,tm.month,tm.day,tm.year,tm.hour,tm.min);
 
+extern Task* getrecurtm(char*,Task*);
+static void test_getrecur()
+{
+	Task task;
+	task.description = "(A) do hw RECUR: Fri";
+	sput_fail_if(getrecurtm(" Fri",&task) == NULL, "RECUR succeed test");
+
+	task.description = "(A) do hw RECUR: ";
+	sput_fail_unless(gettms(&task) == NULL, "RECUR fail test");
+
+	task.description = "(A) do hw RECUR: Fri START: 08/22/14 08:00 END: 08-22-14 09:22";
+	sput_fail_if(gettms(&task) == NULL, "RECUR succeed test with start/end");
+
+	task.description = "(A) do hw RECUR: START: 08/22/14 08:00 END: 08-22-14 09:22";
+	sput_fail_unless(gettms(&task) == NULL, "RECUR fail test with start/end");
+}
+
+static void test_gettm_success()
+{
+	Task task;
+	task.description = "(A) do hw START: 08/22/14 08:00 END: 08-22-14 09:22";
+	sput_fail_if(gettms(&task) == NULL, "gettm(): start/end succeed test");
+}
+
+static void test_gettm_fail()
+{
+	Task task;
+	task.description = "(A) do hw START: bob";
+	sput_fail_unless(gettms(&task) == NULL, "gettm(): start fail test");
+ 
+	task.description = "(A) do hw END: bob";
+	sput_fail_unless(gettms(&task) == NULL, "gettm(): end fail test");
+
+	task.description = "(A) do hw START: bob END: larry";
+	sput_fail_unless(gettms(&task) == NULL, "gettm(): end fail test");
+}
+
 int main(int argc, char const *argv[])
 {
-  //parse args
-  Task t,d;
-	t.description = "(A) math hw START:08/22/14 08:15 END:08/22/14 03:30";
-	d.description = "(A) sci hw START:08:15 END:03:30";
+	//run unit tests
+	#ifdef UNITTST
 
-	gettms(&t);
-	gettms(&d);
+	sput_start_testing();
+	sput_enter_suite("getrecurtm(): RECUR parsing");
+	sput_run_test(test_getrecur);
 
-	pdate(t.starttm);
-	pdate(t.endtm);
+	sput_enter_suite("gettm() parsing");
+	sput_run_test(test_gettm_success);
+	sput_run_test(test_gettm_fail);
 
-	pdate(d.starttm);
-	pdate(d.endtm);
-  //parse tasks from given todo file
-  //generate day planner
-  //save day planner
-	return EXIT_SUCCESS;
+	#endif
+
+ 	return EXIT_SUCCESS;
 }
