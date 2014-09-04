@@ -112,7 +112,6 @@ date_t gettm(char* str)
 		free(temp);
 
 	return date;
-
 }
 
 ///helper function for gettms
@@ -154,53 +153,46 @@ Task* getrecurtm(char* str, Task* time)
 Task* gettms(Task* task)
 {
 	//define variables
-	char* str = task->description;
-	char* temp;
+	char* startstr;
 	char* endstr;
-	char err = 0;
+	char* temp;
 
 	//sanity checks
-	if(!task || !str) goto error;	
-	if(*str == 0) goto error;
+	if(!task) goto error;	
+
+	size_t n;
+	n = strlen(task->description);
+	temp = (char*)malloc(sizeof(char)*n);
+	check_mem(temp);
+	strncpy(temp,task->description,n);
 
 	//get reoccurence time if needed
-	if((temp = strstr(str,"RECUR:")))
+	if((startstr = strstr(temp,"RECUR:")))
 	{
-		temp += 6;
-		check(getrecurtm(temp,task),"Invalid Recurring Day");
-		//flag the error bit that a recur time was found
-		err |= 0x04;
+		startstr += 6;
+		check(getrecurtm(startstr,task),"Invalid Recurring Day");
 	}
 
 	//offset the string to the start date
-	if(!(str = strstr(str,"START:"))) err |= 0x01;
-	str += 6;
+	check((startstr = strstr(temp,"START:")),"No START time found"); 
+	startstr += 6;
 
 	//break the string at the end date
-	if(!(endstr = strstr(str,"END:"))) err |= 0x02;
+	check((endstr = strstr(temp,"END:")),"No END time found");
 	endstr += 4;
 
-	//check for logic errors
-	check(!(err == 1),"END time found START time required");
-	check(!(err == 2),"START time found END time required");
-	check(!(err > 3),"RECUR found START/END times required");
-
-	if(err == 3)
-	{
-		debug("NO START/END/RECUR times found");
-		goto error;
-	}
-
-	//create regex string for START:
-	temp = (char*)malloc(sizeof(char)*strlen(str));	
-	check_mem(temp);
-
-	strncpy(temp,str,strlen(str)-strlen(endstr));
-	*(temp+(endstr-str-4)) = '\0';
+	//insert '\0' at ':' in 'END:' to make sure the parser works correctly
+	*(startstr+(endstr-startstr-1)) = '\0';
 
 	//parse the START: and END: strings for dates and times
-	task->starttm = gettm(temp);
+	task->starttm = gettm(startstr);
 	task->endtm = gettm(endstr);
+
+	//replace the ':' so the description is saved
+	*(startstr+(endstr-startstr-1)) = ':';
+
+	//throw an error if both start and end times are 0
+	check_error((task->starttm.date == task->endtm.date) == 0);
 
 	//shift the end time to military time 
 	if(task->endtm.hour < task->starttm.hour)
@@ -211,7 +203,6 @@ Task* gettms(Task* task)
 	pdate(task->endtm); 
 	#endif
 
-	free(temp);
 	return task;
 
 	error:

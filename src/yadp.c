@@ -84,6 +84,7 @@ int main(int argc, char const *argv[])
 	sput_run_test(test_gettm_success);
 	sput_run_test(test_gettm_fail);
 
+	sput_finish_testing();
 	#endif
 
  	return EXIT_SUCCESS;
