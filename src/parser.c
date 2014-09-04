@@ -43,7 +43,6 @@
 #define PATTERN "(([0-9][0-9])[/|-]([0-9][0-9])[/|-]([0-9][0-9])) ?(([0-9][0-9]):([0-9][0-9]))[.]*"
 const char* weeks[7] = {"Mon","Tue","Wed","Thur","Fri","Sat","Sun"};
 
-
 ///helper function for task_parse
 date_t gettm(char* str)
 {
@@ -143,9 +142,7 @@ Task* getrecurtm(char* str, Task* time)
 		if(!strncmp(str,weeks[i],3))
 		{
 			time->recur = i;
-			#ifndef NDEBUG
 			debug("Recurring Time found: %s",weeks[i]);
-			#endif 
 			return time;
 		}
 	}
@@ -160,6 +157,7 @@ Task* gettms(Task* task)
 	char* str = task->description;
 	char* temp;
 	char* endstr;
+	char err = 0;
 
 	//sanity checks
 	if(!task || !str) goto error;	
@@ -170,15 +168,28 @@ Task* gettms(Task* task)
 	{
 		temp += 6;
 		check(getrecurtm(temp,task),"Invalid Recurring Day");
+		//flag the error bit that a recur time was found
+		err |= 0x04;
 	}
 
 	//offset the string to the start date
-	if(!(str = strstr(str,"START:"))) return NULL;
+	if(!(str = strstr(str,"START:"))) err |= 0x01;
 	str += 6;
 
 	//break the string at the end date
-	if(!(endstr = strstr(str,"END:"))) return NULL;
+	if(!(endstr = strstr(str,"END:"))) err |= 0x02;
 	endstr += 4;
+
+	//check for logic errors
+	check(!(err == 1),"END time found START time required");
+	check(!(err == 2),"START time found END time required");
+	check(!(err > 3),"RECUR found START/END times required");
+
+	if(err == 3)
+	{
+		debug("NO START/END/RECUR times found");
+		goto error;
+	}
 
 	//create regex string for START:
 	temp = (char*)malloc(sizeof(char)*strlen(str));	
@@ -200,6 +211,7 @@ Task* gettms(Task* task)
 	pdate(task->endtm); 
 	#endif
 
+	free(temp);
 	return task;
 
 	error:
