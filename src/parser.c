@@ -41,7 +41,7 @@
 #endif
 
 #define PATTERN "(([0-9][0-9])[/|-]([0-9][0-9])[/|-]([0-9][0-9])) ?(([0-9][0-9]):([0-9][0-9]))[.]*"
-const char* weeks[7] = {"Mon","Tue","Wed","Thur","Fri","Sat","Sun"};
+const char* weeks[7] = {"Sun","Mon","Tue","Wed","Thur","Fri","Sat"};
 
 ///helper function for task_parse
 date_t gettm(char* str)

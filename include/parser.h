@@ -31,11 +31,11 @@ typedef union
 	unsigned long int date:40;
 	struct
 	{
-		unsigned char year:8;
-		unsigned char month:8;
-		unsigned char day:8;
-		unsigned char hour:8;
 		unsigned int min:8;
+		unsigned char hour:8;
+		unsigned char day:8;
+		unsigned char month:8;
+		unsigned char year:8;
 	};
 } date_t;
 
