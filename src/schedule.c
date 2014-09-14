@@ -24,31 +24,67 @@
  * @copyright GNU Public License 2
  */
 
+#include <math.h>
+
+#define TBLTYPE char
+#include "table.h"
+
 #include "schedule.h"
 #include "parser.h"
 #include "time.h"
+#include "dbg.h"
 
-Task* normtask(date_t sp, date_t ep, Task* task)
+table_t* formattask(int* dim, Task* task)
 {
-	timer tmr;
-	struct tm tme;
-	//sanity checks
-	check(task,"Invalid Task struct");
+	table_t* out;
+	double dfftm;
+	unsigned int ys,xs;
+	size_t i,j;
+	size_t cnt,cntmax;
 
-	//check for recurring time
-	if(task.recur)
+	//sanity checks
+	check_mem(task);
+	check_mem(dim);
+
+	//init output table
+	dfftm = difftime(task->endtm,task->starttm);
+	ys = ceil((difftm/60)/dim[1]); //number of lines / (min/line)
+	xs = ceil((difftm/86400)*dim[0]); //number of days it will cover * (cells/day)
+
+	out = inittbl(' ',xs,ys);
+	check_mem(out);
+
+	//create top and bottom borders
+	for (i = 0; i < xs; i++)
 	{
-		//normalize recur time
-		time(&tmr);
-		tme = *(localtime(&tmr));
-		if(tme.tm_mday > task.recur)
+		setcell(out,'-',i,0);
+		setcell(out,'-',i,ys-1);
 	}
 
-	//check the start and end time against print period
-	check_error((sp <= task.startm.date && task.endtm.date <= ep));
+	//insert task in table 
+	cntmax = strlen(task->description);
 
+	for (i = 1; i < ys-1; i++)
+	{
+		for (j = 1; (j < xs-1); j++)
+		{
+			if(cntr < cntmax)
+				setcell(out,task->description[cntr++],j,i);
+			else
+				goto elipse;
+		}
+	}
 
-	//calculate the start end time
+	//insert elipse if the task description was to long
+	if (xs > 4 && cnt < cntmax)
+	{
+		setcell(out,' ',xs-5,ys-2)
+		setcell(out,'.',xs-4,ys-2)
+		setcell(out,'.',xs-3,ys-2)
+		setcell(out,'.',xs-2,ys-2)
+	}
+
+	return table;
 	error:
 		return NULL;
 }

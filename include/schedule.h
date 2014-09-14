@@ -24,20 +24,28 @@
  * @copyright GNU Public License 2
  */
 
+#ifndef __schedule
+#define __schedule
+
 #include "parser.h"
 
+#define INHEADER
+#include "table.h"
+
 /**
- * @brief normalizes the times for a newly parsed task
+ * @brief gets the output formatting of the task based on the task times
  * 
- * Takes the recurring time (if any), the start and end time and calculates the
- * next time the task occures. If the task doesn't fall within the printing
- * period then it is freed from memory and NULL is returned. If no hour:minute
- * time exists then the task is kept only if it falls within the print period.
- * It will be printed as a todo item
+ * Sets the task's x,y coordinates on the print output and its width and height.
+ * It also creates the line array of the task's description that is used for
+ * printing.
  *
- * @param task - the given task to calculate
+ * @param dim - the max dimensions of a task (@see pweek())
+ * @param task - the task to format
  *
- * @return Task* - given task with normalized times or NULL if error occurs.
+ * @return char* - task with formatted text or NULL if error occurs. Note this
+ * string should be freed after copied into a buffer.
  * 
  */
-Task* normtask(Task* task);
+table_t* formattask(int* dim, Task* task);
+
+#endif 

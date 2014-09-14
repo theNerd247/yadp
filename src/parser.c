@@ -156,11 +156,14 @@ Task* gettms(Task* task)
 	char* startstr;
 	char* endstr;
 	char* temp;
+	size_t n;
 
 	//sanity checks
 	if(!task) goto error;	
 
-	size_t n;
+	//init recur time
+	task->recur = 7;
+
 	n = strlen(task->description);
 	temp = (char*)malloc(sizeof(char)*n);
 	check_mem(temp);

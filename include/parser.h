@@ -24,6 +24,9 @@
  * @copyright GNU Public License 2
  */
 
+#ifndef __parser
+#define __parser
+
 #include <stdio.h>
 
 typedef union
@@ -73,3 +76,5 @@ Task* gettasklist(FILE* file);
  * @todo add date extraction (yyyy-mm-dd)
  */
 Task* gettms(Task* task);
+
+#endif 
