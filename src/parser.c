@@ -47,14 +47,18 @@ const char* weeks[7] = {"Sun","Mon","Tue","Wed","Thur","Fri","Sat"};
 ///helper function for task_parse
 struct tm gettm(char* str)
 {
- 	size_t i;
+	 size_t i;
 	size_t nmatches;
 	regex_t regt;
 	regmatch_t* matches = NULL;
 	char* temp = NULL;
 	struct tm date;
+	time_t tmp;
 
 	check(str,"Invalid time string: %s",str);
+
+	time(&tmp);
+	date = *(localtime(&tmp));
 
 	temp = (char*)malloc(sizeof(char)*strlen(str));
 	check_mem(temp);
@@ -88,7 +92,7 @@ struct tm gettm(char* str)
 		switch(i)
 		{
 			case 2: 
-				date.tm_mon = b;
+				date.tm_mon = b-1;
 				break;
 			case 3: 
 				date.tm_mday = b;
@@ -104,6 +108,8 @@ struct tm gettm(char* str)
 				break;
 		}
  	}
+	
+	//remove the matches string from the token
 
 	error:
 		regfree(&regt);
@@ -130,9 +136,7 @@ Task* getrecurtm(char* str, Task* time)
 	size_t i;
 	//remove beginning white space
 	while(*str == ' ' || *str == '\t')
-	{
 		str++;
-	}
 
 	//compare characters to get weekday
 	for (i = 0; i < 7; i++)
@@ -191,9 +195,6 @@ Task* gettms(Task* task)
 	starttm = gettm(startstr);
 	endtm = gettm(endstr);
 
-	//replace the ':' so the description is saved
-	*(startstr+(endstr-startstr-1)) = ':';
-
 	//shift the end time to military time 
 	//TODO: add parsing of "am" and "pm" values
 	if(endtm.tm_hour < starttm.tm_hour)
@@ -203,6 +204,10 @@ Task* gettms(Task* task)
 	if(starttm.tm_hour == 24)
 		starttm.tm_hour = 0;
 
+	//replace the ':' so the description is saved
+	*(startstr-6) = '\0';
+
+	task->description = temp;
 	task->starttm = mktime(&starttm);
 	task->endtm = mktime(&endtm);
 

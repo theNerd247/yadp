@@ -25,12 +25,14 @@
  *
  */
 
-#define UNITTST
+/*#define UNITTST*/
 
 #include <stdlib.h>
+#include <time.h>
 
 #include "parser.h"
 #include "sput.h"
+#include "schedule.h"
 
 #define pdate(tm) printf("date(%u): %u/%u/%u/ %u:%u\n",tm.date,tm.month,tm.day,tm.year,tm.hour,tm.min);
 
@@ -71,6 +73,26 @@ static void test_gettm_fail()
 	sput_fail_unless(gettms(&task) == NULL, "gettm(): end fail test");
 }
 
+static void test_getformat_success()
+{
+	Task task;
+	task.description = "(A) do hw START: 09/15/14 10:00 END: 09/15/14 12:00";
+	int dim[4] = {15,30,100,100};
+	size_t i;
+
+	gettms(&task);
+	table_t* tbl = formattask(dim,&task);
+
+	printf("starttm: %s\n", ctime(&task.starttm));
+	printf("endtm: %s\n", ctime(&task.endtm));
+
+	printf("tblsize: %i,%i\n", tbl->xsize,tbl->ysize);
+	for (i = 0; i < tbl->ysize; i++)
+	{
+		printf("%s\n", tbl->cells[i]);
+	}
+}
+
 int main(int argc, char const *argv[])
 {
 	//run unit tests
@@ -86,6 +108,8 @@ int main(int argc, char const *argv[])
 
 	sput_finish_testing();
 	#endif
+
+	test_getformat_success();
 
  	return EXIT_SUCCESS;
 }

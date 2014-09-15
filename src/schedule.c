@@ -26,11 +26,8 @@
 
 #include <math.h>
 
-#define TBLTYPE char
 #include "table.h"
-
 #include "schedule.h"
-#include "parser.h"
 #include "time.h"
 #include "dbg.h"
 
@@ -49,7 +46,8 @@ table_t* formattask(int* dim, Task* task)
 	//init output table
 	difftm = difftime(task->endtm,task->starttm);
 	ys = ceil((difftm/60)/dim[1]); //number of lines / (min/line)
-	xs = ceil((difftm/86400)*dim[0]); //number of days it will cover * (cells/day)
+	xs = difftm/86400;
+	xs = (xs >= 1) ? ceil(xs*dim[0]) : dim[0]; //number of days it will cover * (cells/day)
 
 	out = inittbl(' ',xs,ys);
 	check_mem(out);
@@ -62,6 +60,7 @@ table_t* formattask(int* dim, Task* task)
 	}
 
 	//insert task in table 
+	cnt = 0;
 	cntmax = strlen(task->description);
 
 	for (i = 1; i < ys-1; i++)

@@ -27,10 +27,9 @@
 #ifndef __schedule
 #define __schedule
 
-#include "parser.h"
-
-#define INHEADER
 #include "table.h"
+
+#include "parser.h"
 
 /**
  * @brief gets the output formatting of the task based on the task times

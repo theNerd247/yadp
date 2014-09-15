@@ -24,6 +24,9 @@
  * @copyright GNU Public License 2
  */
 
+#ifndef __table
+#define __table
+
 #ifndef TBLTYPE
 /** 
  * @brief the type to use for storing data in the table
@@ -33,9 +36,6 @@
  */
 #define TBLTYPE char 
 #endif
-
-#ifndef __table
-#define __table
 
 typedef struct 
 {
@@ -58,16 +58,7 @@ typedef struct
  * @return table_t* - 0: the given table; NULL: error occured
  * 
  */
-table_t* setcell(table_t* tbl, TBLTYPE val, unsigned int x, unsigned int y)
-{
-	if(tbl == NULL) 
-		return NULL;
-	else if(x >= tbl->xsize || y >= tbl->ysize || x < 0 || y < 0)
-		return NULL; 
-
-	tbl->cells[y][x] = val;
-	return tbl;
-}
+table_t* setcell(table_t* tbl, TBLTYPE val, unsigned int x, unsigned int y);
 
 /**
  * @brief initializes a new table of type TLBTYPE in dynamic memory
@@ -79,37 +70,7 @@ table_t* setcell(table_t* tbl, TBLTYPE val, unsigned int x, unsigned int y)
  * 
  * @see TBLTYPE
  */
-table_t* inittbl(TBLTYPE val, unsigned int x, unsigned int y)
-{
-	size_t i,j;
-	table_t* newtbl = (table_t*)malloc(sizeof(table_t));
-
-	if (newtbl == NULL) 
-		goto error;
-
-	//create row containers
-	newtbl->cells = (TBLTYPE**)calloc(y,sizeof(TBLTYPE*));
-
-	if(newtbl->cells == NULL)
-		goto error;
-
-	newtbl->xsize = x;
-	newtbl->ysize = y;
-
-	//create row cols
-	for (i = 0; i < y; i++)
-		newtbl->cells[i] = (TBLTYPE*)calloc(x,sizeof(TBLTYPE));
-
-	//init table values
-	for (i = 0; i < y; i++)
-		for (j = 0; j < x; j++)
-			setcell(newtbl,val,j,i);
-
-	return newtbl;
-
-	error:
-		return NULL;
-}
+table_t* inittbl(TBLTYPE val, unsigned int x, unsigned int y);
 
 /**
  * @brief returns the value contained in the table at x,y
@@ -121,15 +82,7 @@ table_t* inittbl(TBLTYPE val, unsigned int x, unsigned int y)
  * @return TBLTYPE - the value in the given cell. (0 is returned if an error occurs).
  * 
  */
-TBLTYPE getcell(table_t* tbl, unsigned int x, unsigned int y)
-{
-	if(tbl == NULL)
-		return 0;
-	else if(x >= tbl->xsize || y >= tbl->ysize || x < 0 || y < 0) 
-		return 0; 
-
-	return tbl->cells[y][x];
-}
+TBLTYPE getcell(table_t* tbl, unsigned int x, unsigned int y);
 
 /**
  * @brief frees the memory contained by a table
