@@ -25,11 +25,11 @@
  */
 
 #include <stdlib.h>
-#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h> //for parsedate
 #include <regex.h> //for parsing task
+#include <time.h>
 
 #include <str.h>
 
@@ -37,25 +37,24 @@
 #include "dbg.h"
 
 #ifndef NDEBUG
-#define pdate(tm) printf("date(%u): %u/%u/%u %u:%u\n",tm.date,tm.month,tm.day,tm.year,tm.hour,tm.min);
+//TODO: update pdate to print struct tm values
+#define pdate(tm) 
 #endif
 
 #define PATTERN "(([0-9][0-9])[/|-]([0-9][0-9])[/|-]([0-9][0-9])) ?(([0-9][0-9]):([0-9][0-9]))[.]*"
 const char* weeks[7] = {"Sun","Mon","Tue","Wed","Thur","Fri","Sat"};
 
 ///helper function for task_parse
-date_t gettm(char* str)
+struct tm gettm(char* str)
 {
  	size_t i;
 	size_t nmatches;
 	regex_t regt;
 	regmatch_t* matches = NULL;
 	char* temp = NULL;
-	date_t date;
+	struct tm date;
 
 	check(str,"Invalid time string: %s",str);
-
-	date.date = 0; 
 
 	temp = (char*)malloc(sizeof(char)*strlen(str));
 	check_mem(temp);
@@ -89,19 +88,19 @@ date_t gettm(char* str)
 		switch(i)
 		{
 			case 2: 
-				date.month = b;
+				date.tm_mon = b;
 				break;
 			case 3: 
-				date.day= b;
+				date.tm_mday = b;
 				break;
 			case 4: 
-				date.year = b;
+				date.tm_year = (b+2000)-1900;
 				break;
 			case 6: 
-				date.hour = b;
+				date.tm_hour = b;
 				break;
 			case 7: 
-				date.min = b;
+				date.tm_min = b;
 				break;
 		}
  	}
@@ -157,6 +156,7 @@ Task* gettms(Task* task)
 	char* endstr;
 	char* temp;
 	size_t n;
+	struct tm starttm, endtm;
 
 	//sanity checks
 	if(!task) goto error;	
@@ -188,19 +188,27 @@ Task* gettms(Task* task)
 	*(startstr+(endstr-startstr-1)) = '\0';
 
 	//parse the START: and END: strings for dates and times
-	task->starttm = gettm(startstr);
-	task->endtm = gettm(endstr);
+	starttm = gettm(startstr);
+	endtm = gettm(endstr);
 
 	//replace the ':' so the description is saved
 	*(startstr+(endstr-startstr-1)) = ':';
 
-	//throw an error if both start and end times are 0
-	check_error((task->starttm.date == task->endtm.date) == 0);
-
 	//shift the end time to military time 
-	if(task->endtm.hour < task->starttm.hour)
-		task->endtm.hour += 12;
-	
+	//TODO: add parsing of "am" and "pm" values
+	if(endtm.tm_hour < starttm.tm_hour)
+		endtm.tm_hour += 12;
+
+	//convert 24 (midnight) hour to 0	as is proper for struct tm format	
+	if(starttm.tm_hour == 24)
+		starttm.tm_hour = 0;
+
+	task->starttm = mktime(&starttm);
+	task->endtm = mktime(&endtm);
+
+	//throw an error if both start and end times are 0
+	//check_error((starttm.date == endtm.date) == 0);
+
 	#ifndef NDEBUG
 	pdate(task->starttm); 
 	pdate(task->endtm); 

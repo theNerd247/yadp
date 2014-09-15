@@ -37,7 +37,7 @@
 table_t* formattask(int* dim, Task* task)
 {
 	table_t* out;
-	double dfftm;
+	double difftm;
 	unsigned int ys,xs;
 	size_t i,j;
 	size_t cnt,cntmax;
@@ -47,7 +47,7 @@ table_t* formattask(int* dim, Task* task)
 	check_mem(dim);
 
 	//init output table
-	dfftm = difftime(task->endtm,task->starttm);
+	difftm = difftime(task->endtm,task->starttm);
 	ys = ceil((difftm/60)/dim[1]); //number of lines / (min/line)
 	xs = ceil((difftm/86400)*dim[0]); //number of days it will cover * (cells/day)
 
@@ -68,23 +68,24 @@ table_t* formattask(int* dim, Task* task)
 	{
 		for (j = 1; (j < xs-1); j++)
 		{
-			if(cntr < cntmax)
-				setcell(out,task->description[cntr++],j,i);
+			if(cnt < cntmax)
+				setcell(out,task->description[cnt++],j,i);
 			else
 				goto elipse;
 		}
 	}
 
 	//insert elipse if the task description was to long
+	elipse:
 	if (xs > 4 && cnt < cntmax)
 	{
-		setcell(out,' ',xs-5,ys-2)
-		setcell(out,'.',xs-4,ys-2)
-		setcell(out,'.',xs-3,ys-2)
-		setcell(out,'.',xs-2,ys-2)
+		setcell(out,' ',xs-5,ys-2);
+		setcell(out,'.',xs-4,ys-2);
+		setcell(out,'.',xs-3,ys-2);
+		setcell(out,'.',xs-2,ys-2);
 	}
 
-	return table;
+	return out;
 	error:
 		return NULL;
 }
