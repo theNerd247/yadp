@@ -28,25 +28,13 @@
 #define __parser
 
 #include <stdio.h>
-
-typedef union
-{
-	unsigned long int date:40;
-	struct
-	{
-		unsigned int min:8;
-		unsigned char hour:8;
-		unsigned char day:8;
-		unsigned char month:8;
-		unsigned char year:8;
-	};
-} date_t;
+#include "time.h"
 
 typedef struct task_t
 {
 	char* description; /**< description of what the task is about. */
-	date_t starttm; /**< start time/date of event */
-	date_t endtm; /**< end time/date of event */
+	time_t starttm; /**< start time/date of event */
+	time_t endtm; /**< end time/date of event */
 	struct
 	{
 		unsigned char recur:3; /**< recurring week day of event */
