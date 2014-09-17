@@ -27,6 +27,7 @@
 #ifndef __schedule
 #define __schedule
 
+#define __table_headerinc__
 #include "table.h"
 
 #include "parser.h"
