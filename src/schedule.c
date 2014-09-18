@@ -28,6 +28,7 @@
 
 #include "table.h"
 #include "schedule.h"
+#include "parser.h"
 
 #include "time.h"
 #include "dbg.h"
@@ -88,4 +89,72 @@ table_t* formattask(int* dim, Task* task)
 	return out;
 	error:
 		return NULL;
+}
+
+void normtask(Task* task, time_t start, time_t end)
+{
+	struct tm* tmr;
+	time_t tmp;
+	struct tm* strtm;
+
+	check_mem(task);
+	check(task.recur < 7);
+
+	time(&tmp);
+	tmr = localtime(&tmp);
+	strtm = localtime(task.starttm);
+
+	strtm->tm_mday = (tmr->tm_mday-tmr->tm_wday)+task.recur;
+	
+	//shift the recurrence time to next week if its past today
+	if(tmr->tm_wday > task.recur)
+	{
+		strtm->tm_mday += 7;
+	}
+
+	//rebuild time_t for task;
+	task->starttm = mktime(strtm);
+
+	error:
+		return;
+}
+
+char* getdayplanner(FILE* file, time_t start, time_t end)
+{
+	char line[MAX_CHAR];
+	Task task;
+	char* output;
+	check_mem(file);
+
+	//validate start and end times
+	check(start < end,"invalid start end print dates");
+
+	//read file text
+	while(fgets(line,MAX_CHAR,file))
+	{
+		task.description = line;
+
+		//parse the task for info
+		gettms(&task);
+
+		//process the task if recurrence time available
+		if(task.recur != 7)
+		{
+			do
+			{
+				normtask(&task,start,end);
+				//TODO: print task to output;
+			}while(task.starttm < start)
+		}
+
+		//check if task falls in valid start end times
+		if(task.starttm < start || task.endtm > end)
+			continue;
+
+		//get the task format
+		formattask(pconfig,task);
+	}
+
+	error:
+		return NULL:
 }

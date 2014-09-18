@@ -32,6 +32,8 @@
 
 #include "parser.h"
 
+#define MAX_CHAR 1024
+
 /**
  * @brief gets the output formatting of the task based on the task times
  * 
@@ -48,4 +50,27 @@
  */
 table_t* formattask(int* dim, Task* task);
 
+/**
+ * @brief creates the day planner from the given todo file
+ * 
+ * Creates the day planner between the start and end dates. 
+ * file must be a todo.txt formatted file. Below is the formatt of each line:
+ *
+ * `regular task info here RECUR: Fri START: mm/dd/yy END: mm/dd/yy`
+ *
+ * Where `RECUR:` is the a day in the week that the task should happen on
+ * `START: ` and `END: ` are the start and end dates for a given event. 
+ * If RECUR is used with START and END then the task will be seen as occuring
+ * only between START and END times.
+ *
+ * **NOTE:** call configplanner() before using this function
+ *
+ * @param file - the todo file to parse the data from.
+ * @param start - the start of the print date
+ * @param end - end of the print date
+ *
+ * @return char* - string representation of the day planner; NULL if an error occurs
+ * 
+ */
+char* getdayplanner(FILE* file, time_t start, time_t end);
 #endif 

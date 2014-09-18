@@ -5,6 +5,7 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	Development	//
 HAVE_SPUT_H	include/sput.h	37;"	d
+MAX_CHAR	include/schedule.h	35;"	d
 SPUT_DEFAULT_CHECK_NAME	include/sput.h	61;"	d
 SPUT_DEFAULT_SUITE_NAME	include/sput.h	60;"	d
 SPUT_INITIALIZED	include/sput.h	63;"	d
@@ -12,14 +13,15 @@ SPUT_VERSION_MAJOR	include/sput.h	55;"	d
 SPUT_VERSION_MINOR	include/sput.h	56;"	d
 SPUT_VERSION_PATCH	include/sput.h	57;"	d
 SPUT_VERSION_STRING	include/sput.h	58;"	d
-TBLTYPE	include/table.h	37;"	d
+TBLTYPE	include/table.h	34;"	d
 Task	include/parser.h	/^}Task;$/;"	t	typeref:struct:task_t
 __DO_VOID__	include/dbg.h	25;"	d
 __dbg_h__	include/dbg.h	4;"	d
 __parser	include/parser.h	28;"	d
 __schedule	include/schedule.h	28;"	d
 __sput	include/sput.h	/^    } __sput;$/;"	v	typeref:struct:sput
-__table	include/table.h	28;"	d
+__table_body	include/table.h	47;"	d
+__table_headerinc__	include/schedule.h	30;"	d
 _sput_check_failed	include/sput.h	142;"	d
 _sput_check_succeeded	include/sput.h	158;"	d
 _sput_die_unless_initialized	include/sput.h	118;"	d
@@ -45,16 +47,16 @@ endtm	include/parser.h	/^	time_t endtm; \/**< end time\/date of event *\/$/;"	m	
 error_run	include/dbg.h	71;"	d
 formattask	include/schedule.h	/^table_t* formattask(int* dim, Task* task);$/;"	p	signature:(int* dim, Task* task)
 formattask	src/schedule.c	/^table_t* formattask(int* dim, Task* task)$/;"	f	signature:(int* dim, Task* task)
-getcell	include/table.h	/^TBLTYPE getcell(table_t* tbl, unsigned int x, unsigned int y);$/;"	p	signature:(table_t* tbl, unsigned int x, unsigned int y)
-getcell	src/table.c	/^TBLTYPE getcell(table_t* tbl, unsigned int x, unsigned int y)$/;"	f	signature:(table_t* tbl, unsigned int x, unsigned int y)
+getcell	include/table.h	/^TBLTYPE getcell(table_t* tbl, unsigned int x, unsigned int y)$/;"	f	signature:(table_t* tbl, unsigned int x, unsigned int y)
+getdayplanner	include/schedule.h	/^char* getdayplanner(FILE* file, time_t start, time_t end);$/;"	p	signature:(FILE* file, time_t start, time_t end)
+getdayplanner	src/schedule.c	/^char* getdayplanner(FILE* file, time_t start, time_t end)$/;"	f	signature:(FILE* file, time_t start, time_t end)
 getrecurtm	src/parser.c	/^Task* getrecurtm(char* str, Task* time)$/;"	f	signature:(char* str, Task* time)
 gettasklist	include/parser.h	/^Task* gettasklist(FILE* file);$/;"	p	signature:(FILE* file)
 gettm	src/parser.c	/^struct tm gettm(char* str)$/;"	f	signature:(char* str)
 gettms	include/parser.h	/^Task* gettms(Task* task);$/;"	p	signature:(Task* task)
 gettms	src/parser.c	/^Task* gettms(Task* task)$/;"	f	signature:(Task* task)
 initialized	include/sput.h	/^        char  initialized;$/;"	m	struct:sput	access:public
-inittbl	include/table.h	/^table_t* inittbl(TBLTYPE val, unsigned int x, unsigned int y);$/;"	p	signature:(TBLTYPE val, unsigned int x, unsigned int y)
-inittbl	src/table.c	/^table_t* inittbl(TBLTYPE val, unsigned int x, unsigned int y)$/;"	f	signature:(TBLTYPE val, unsigned int x, unsigned int y)
+inittbl	include/table.h	/^table_t* inittbl(TBLTYPE val, unsigned int x, unsigned int y)$/;"	f	signature:(TBLTYPE val, unsigned int x, unsigned int y)
 line	include/sput.h	/^            unsigned long line;$/;"	m	struct:sput::sput_check	access:public
 lock	include/dbg.h	12;"	d
 log_attempt	include/dbg.h	30;"	d
@@ -83,8 +85,7 @@ out	include/sput.h	/^        FILE *out;$/;"	m	struct:sput	access:public
 overall	include/sput.h	/^        } overall;$/;"	m	struct:sput	typeref:struct:sput::sput_overall	access:public
 recur	include/parser.h	/^		unsigned char recur:3; \/**< recurring week day of event *\/$/;"	m	struct:task_t::__anon2	access:public
 sentinel	include/dbg.h	64;"	d
-setcell	include/table.h	/^table_t* setcell(table_t* tbl, TBLTYPE val, unsigned int x, unsigned int y);$/;"	p	signature:(table_t* tbl, TBLTYPE val, unsigned int x, unsigned int y)
-setcell	src/table.c	/^table_t* setcell(table_t* tbl, TBLTYPE val, unsigned int x, unsigned int y)$/;"	f	signature:(table_t* tbl, TBLTYPE val, unsigned int x, unsigned int y)
+setcell	include/table.h	/^table_t* setcell(table_t* tbl, TBLTYPE val, unsigned int x, unsigned int y)$/;"	f	signature:(table_t* tbl, TBLTYPE val, unsigned int x, unsigned int y)
 sput	include/sput.h	/^    static struct sput$/;"	s
 sput_check	include/sput.h	/^        struct sput_check$/;"	s	struct:sput	access:public
 sput_enter_suite	include/sput.h	208;"	d
